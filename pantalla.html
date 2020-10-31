@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/videojuego.css">
+
+</head>
+<body>
+    <button id=pantalla_completa onclick="openFullscreen();">Pantalla completa</button>
+
+<canvas id="myCanvas"></canvas> 
+<input type="button" value="Empezar" id="Empezar" class=empezar onclick="inicio()">
+
+
+
+
+<script>
+    var elem = document.documentElement;
+    var canvas = document.getElementById("myCanvas"); //guadamos el elemento canvas en una variable llamada canvas
+    var ctx = canvas.getContext("2d"); //guardamos en ctx el contexto de gráficos 2D
+    //document.getElementById("ms").innerHTML="00:00";
+    let cw=(canvas.width=screen.width);
+    let ch=(canvas.height=screen.height);
+    var x =cw/2;
+    var y =ch/2;
+    var x_click;
+    var y_click;
+    var cronos;
+    var t_generador;
+    var i=0; //posicion del vector de distancias
+    var k=0;
+    var v_x = new Array();
+    var v_y =new Array();
+    var vx_click = new Array();
+    var vy_click =new Array();
+    var distancias =new Array();
+    var suma_distancias=0;
+    var sg=0;
+    var cs=0;
+    var mn=0;
+    var cont=0;
+    var m=0;
+    var suma=0;
+    var media=0;
+    var h=0;
+    contador=0;
+    cont=0;
+    //var mensaje=confirm("Para realizar el experimento debes tener pantalla completa.");
+    
+        //función para poner el canvas en pantalla completa
+    function openFullscreen() {
+            document.getElementById('pantalla_completa').style.display = 'none';
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.mozRequestFullScreen) { /* Firefox */
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE/Edge */
+                elem = window.top.document.body;
+                elem.msRequestFullscreen();
+            }
+        }
+    
+
+function inicio()
+{
+    
+    //calculamos las dimensiones de la pantalla en pixeles y en centimetros
+    ancho=screen.width;
+    altura=screen.height;
+    ancho_cm=ancho*2.54/96;
+    altura_cm=altura*2.54/96;
+    //alert("Longitud de la pantalla en centímetros: "+ancho_cm+"x"+altura_cm);
+    //ocultamos el boton de empezar
+    document.getElementById('Empezar').style.display = 'none';
+    //dibujamos el circulo por primera vez
+    ctx.beginPath(); //abrimos una nueva ruta
+    ctx.arc(x, y, 10, 0, Math.PI*2,false); //creamos un circulo
+    ctx.fillStyle = "green";
+    ctx.fill(); //metodo utilizado para pintar la figura
+    ctx.closePath();
+    setTimeout(circulo_grande,2000);
+    //Despues de 4 segundos empezamos a contar que  es cuando realmente empieza el  experimento
+    setTimeout(init,4000);
+}
+
+function circulo_grande(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath(); //abrimos una nueva ruta
+    ctx.arc(x, y, 20, 0, Math.PI*2,false); //creamos un circulo
+    ctx.fillStyle = "green";
+    ctx.fill(); //metodo utilizado para pintar la figura
+    ctx.closePath();
+    setTimeout(limpiar_lienzo,2000)
+}
+
+function dibujar_circulo(){
+    
+    //generamos numeros aleatorios para las coordenadas x e y 
+    x =Math.floor(Math.random()* (canvas.width-10))+10;
+    y =Math.floor(Math.random()* (canvas.height-10))+10;
+
+    ctx.beginPath(); //abrimos una nueva ruta
+    ctx.arc(x, y, 10, 0, Math.PI*2,false); //creamos un circulo
+    ctx.fillStyle = "green";
+    ctx.fill(); //metodo utilizado para pintar la figura
+    ctx.closePath();
+    //si son distintos es que no se ha clicado
+    console.log()
+    if(h!=1)
+    {
+ 
+        vx_click[k]=0;
+        vy_click[k]=0;
+        k++;
+    }
+    cont=i;
+    console.log("Posicion real del circulo: ("+x+","+y+")");
+    v_x[i]=x;
+    v_y[i]=y;
+    i++;
+    h=0;
+    setTimeout(limpiar_lienzo,3000)
+
+    
+}
+//creamos el evento de clicar pero solo una vez en cada circulo que aparezca
+document.addEventListener("click",
+function(e)
+{
+    
+    h=1;
+    cont++;
+    if(cont==i)
+    {
+        posicion(e);
+    }
+  
+    
+}
+,false);
+
+function limpiar_lienzo(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height); //borramos el lienzo cada vez que movemos el circulo
+    
+    t_generador=setTimeout(dibujar_circulo,1000); //vamos a dibujar el circulo cada x segundos, volvemos a llamar a las funciones
+    //de limpiar y dibujar
+    
+}
+
+function posicion(canvas,event){
+    
+    //creamos las variables de las coordenadas donde clicamos
+    x_click=canvas.offsetX;
+    y_click=canvas.offsetY;
+ 
+    console.log("Posicion donde clicamos: ("+x_click+","+y_click+")");
+    console.log("Momento en el que se realiza el click: "+sg+":"+cs);
+    vx_click[k]=x_click;
+    vy_click[k]=y_click;
+    k++;
+}
+
+    
+//funcion para iniciar la cuenta del tiempo del experimento
+    function init() {
+        emp=new Date()
+        cronos = setInterval(timer, 10);
+      }
+
+//funcion que calcula el  tiempo
+function timer() {
+    actual=new Date() //fecha en el instante
+    cro=actual-emp; //tiempo transcurrido en milisegundos
+    cr=new Date() //fecha donde guardamos el tiempo transcurrido
+    cr.setTime(cro);
+    cs=cr.getMilliseconds() //milisegundos del cronómetro
+    sg=cr.getSeconds(); //segundos del cronómetro
+    mn=cr.getMinutes();
+        
+    if (cs<10) {cs="00"+cs;} 
+    else if(cs<100) {cs="0"+cs;} 
+    if (sg<10) {sg="0"+sg;} 
+    if(mn<10) {mn="0"+mn;}
+         
+
+        //cuando llevemos un minuto se termina el experimento y se llama a la función parar
+    if(mn==1){
+        parar();
+        window.alert("El juego ha finalizado. Tu puntuación ha sido de: "+puntuacion);
+        //window.close();
+    }
+}
+
+//finaliza de contar y  se termina el experimento
+function parar(){
+
+    clearInterval(cronos);
+    clearTimeout(t_generador); //paramos de generar circulos
+    distancia();
+}
+
+//funcion en la qu calculamos el vector de distancias de los diferentes puntos (circulo y click)
+function distancia(){
+    var j=0;
+    //vx_click.splice(0,1);
+    //vy_click.splice(0,1);
+    //recrremos cada una de las posisiones en x e y para calcular cada distancia
+
+    for(let j=0;j<vx_click.length;j++)
+    {
+        if(vx_click[j]!=0 || vy_click[j]!=0)
+        {
+            distancias[j]=Math.sqrt((Math.pow(vx_click[j]-v_x[j],2))+(Math.pow(vy_click[j]-v_y[j],2)));
+            console.log("("+vx_click[j]+"-"+v_x[j]+")+("+vy_click[j]+"-"+v_y[j]+")"+"="+ distancias[j]);
+            //vamos sumando cada una de las distancias
+            suma_distancias=suma_distancias+distancias[j];
+            m++;
+        }
+        
+    }
+    //si son distintos de 0 quiere decir que alguna vez no hemos clicado el ratón
+    //por tanto 
+    if(m-vy_click.length!=0)
+    {
+        for(let j=0;j<distancias.length;j++)
+        {
+            
+            if(vy_click[j]==0 || vx_click[j]==0)
+            {
+                contador++;
+                console.log(contador);
+            }else{
+                suma=suma+distancias[j];
+                cont++;
+            }
+            
+        }
+        media=suma/cont;
+    }
+
+    //Sumamos el valor de la media multiplicado por un factor a la suma de distancias
+    
+    
+    suma_distancias=suma_distancias+((20*media)*(contador+(vy_click.length-distancias.length)));
+    
+    console.log("Longitud del vector de distancias: "+distancias.length);
+    console.log("Longitud del vector de coordenadas de y: "+vy_click.length);
+    console.log("Media: "+media);
+    console.log("Suma total: "+suma_distancias);
+
+    //Hacemos el inverso de suma_distancias para obtener el valos de la puntuacion
+    puntuacion=1000000*(1/suma_distancias);
+    console.log("Puntuacion: "+puntuacion);
+    
+}
+</script>
+
+
+</body>
+</html>
+
