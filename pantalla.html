@@ -2,27 +2,25 @@
 <html lang="es">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" href="css/videojuego.css">
+<link rel="stylesheet" href="css/pulsation.css">
+<script src="jquery.js" type="text/javascript"></script>  
 
 </head>
 <body>
     <button id=pantalla_completa onclick="openFullscreen();">Pantalla completa</button>
 
-<canvas id="myCanvas"></canvas> 
-<input type="button" value="Empezar" id="Empezar" class=empezar onclick="inicio()">
 
+<input type="button" value="Empezar" id="Empezar" class=empezar onclick="inicio()">
+<div class="pulsating-circle"></div>
 
 
 
 <script>
     var elem = document.documentElement;
-    var canvas = document.getElementById("myCanvas"); //guadamos el elemento canvas en una variable llamada canvas
-    var ctx = canvas.getContext("2d"); //guardamos en ctx el contexto de gráficos 2D
-    //document.getElementById("ms").innerHTML="00:00";
-    let cw=(canvas.width=screen.width);
-    let ch=(canvas.height=screen.height);
-    var x =cw/2;
-    var y =ch/2;
+    
+
     var x_click;
     var y_click;
     var cronos;
@@ -43,11 +41,12 @@
     var suma=0;
     var media=0;
     var h=0;
-    contador=0;
-    cont=0;
+    var contador=0;
+    var cont=0;
+    var newp;
     //var mensaje=confirm("Para realizar el experimento debes tener pantalla completa.");
     
-        //función para poner el canvas en pantalla completa
+        //función para poner el documento en pantalla completa
     function openFullscreen() {
             document.getElementById('pantalla_completa').style.display = 'none';
             if (elem.requestFullscreen) {
@@ -74,40 +73,46 @@ function inicio()
     //alert("Longitud de la pantalla en centímetros: "+ancho_cm+"x"+altura_cm);
     //ocultamos el boton de empezar
     document.getElementById('Empezar').style.display = 'none';
-    //dibujamos el circulo por primera vez
-    ctx.beginPath(); //abrimos una nueva ruta
-    ctx.arc(x, y, 10, 0, Math.PI*2,false); //creamos un circulo
-    ctx.fillStyle = "green";
-    ctx.fill(); //metodo utilizado para pintar la figura
-    ctx.closePath();
-    setTimeout(circulo_grande,2000);
+    
+     $(document).ready(function(){
+        dibujar_circulo('.pulsating-circle');
+    });
+    
     //Despues de 4 segundos empezamos a contar que  es cuando realmente empieza el  experimento
     setTimeout(init,4000);
 }
 
-function circulo_grande(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath(); //abrimos una nueva ruta
-    ctx.arc(x, y, 20, 0, Math.PI*2,false); //creamos un circulo
-    ctx.fillStyle = "green";
-    ctx.fill(); //metodo utilizado para pintar la figura
-    ctx.closePath();
-    setTimeout(limpiar_lienzo,2000)
+
+function nueva_posicion(){
+
+    var h=$(window).height()-50;
+    var w=$(window).width()-50;
+    //generamos numeros aleatorios para las coordenadas x e y 
+    x =Math.floor(Math.random()* h);
+    y =Math.floor(Math.random()* w);
+
+    
+    //retornamos las coordenadas de las nuevas posiciones del div
+    return [x,y];
+    
 }
 
-function dibujar_circulo(){
-    
-    //generamos numeros aleatorios para las coordenadas x e y 
-    x =Math.floor(Math.random()* (canvas.width-10))+10;
-    y =Math.floor(Math.random()* (canvas.height-10))+10;
 
-    ctx.beginPath(); //abrimos una nueva ruta
-    ctx.arc(x, y, 10, 0, Math.PI*2,false); //creamos un circulo
-    ctx.fillStyle = "green";
-    ctx.fill(); //metodo utilizado para pintar la figura
-    ctx.closePath();
+
+function dibujar_circulo(myclass){
+    
+    //En esta variable vamos a guardar las nuevas posiciones del div
+     newp=nueva_posicion();
+
+    setInterval(function(){
+        $(myclass).css({ top: newp[0]+"px",left:newp[1]+"px"})
+        newp=nueva_posicion();
+        console.log("Posicion real del circulo: ("+newp[0]+","+newp[1]+")");
+
+    },4000);
+        
     //si son distintos es que no se ha clicado
-    console.log()
+    
     if(h!=1)
     {
  
@@ -116,15 +121,16 @@ function dibujar_circulo(){
         k++;
     }
     cont=i;
-    console.log("Posicion real del circulo: ("+x+","+y+")");
+    
     v_x[i]=x;
     v_y[i]=y;
     i++;
     h=0;
-    setTimeout(limpiar_lienzo,3000)
-
+    
+    
     
 }
+
 //creamos el evento de clicar pero solo una vez en cada circulo que aparezca
 document.addEventListener("click",
 function(e)
@@ -141,19 +147,13 @@ function(e)
 }
 ,false);
 
-function limpiar_lienzo(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height); //borramos el lienzo cada vez que movemos el circulo
-    
-    t_generador=setTimeout(dibujar_circulo,1000); //vamos a dibujar el circulo cada x segundos, volvemos a llamar a las funciones
-    //de limpiar y dibujar
-    
-}
 
-function posicion(canvas,event){
+
+function posicion(dom,event){
     
     //creamos las variables de las coordenadas donde clicamos
-    x_click=canvas.offsetX;
-    y_click=canvas.offsetY;
+    x_click=dom.offsetX;
+    y_click=dom.offsetY;
  
     console.log("Posicion donde clicamos: ("+x_click+","+y_click+")");
     console.log("Momento en el que se realiza el click: "+sg+":"+cs);
