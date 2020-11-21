@@ -91,11 +91,15 @@ function inicio()
 
 function nueva_posicion(){
 
-    var h=ch-(8*3.779);
-    var w=cw-(8*3.779);
-    //generamos numeros aleatorios para las coordenadas x e y 
-    x =Math.floor(Math.random()* w);
-    y =Math.floor(Math.random()* h);
+    //cogemos el maximo valor de anchura y de altura, restando el radio de la bolita 2 veces,
+    //que será 8mm*3,799=30px.
+    var max_ancho=ancho-30;
+    var max_alto=altura-30;
+    
+    //generamos numeros aleatorios para las coordenadas x e y, generamos números aleatorios y los multiplicamos
+    //por el maximo que hemos calculado anteriomente y le sumamos el radio de la bolita
+    x =Math.floor(Math.random()*(max_ancho-1))+15;
+    y =Math.floor(Math.random()*(max_alto-1))+15;
 
     //retornamos las coordenadas de las nuevas posiciones del div
     return [x,y];
